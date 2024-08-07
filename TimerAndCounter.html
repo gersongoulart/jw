@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Timer and Counter</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			text-align: center;
+			margin-top: 50px;
+		}
+		.container {
+			display: inline-block;
+			padding: 20px;
+			border: 1px solid #ddd;
+			border-radius: 10px;
+		}
+		.timer, .counter {
+			font-size: 3em;
+			margin: 25px 0;
+		}
+		.controls {
+			display: flex;
+		}
+		.controls button {
+			font-size: 1em;
+			font-weight: bold;
+			padding: 10px;
+		}
+		#minutes {
+			text-align: center;
+		}
+		#minus {
+			min-width: 3em;
+			margin: 0 0 10px;
+		}
+		#plus {
+			flex-grow: 4;
+			margin: 0 0 10px;
+		}
+		#reset {
+			width: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="controls">
+			<input type="number" id="minutes" placeholder="Enter minutes" min="0" value="10">
+			<button id="start">▶︎</button>
+		</div>
+		<div class="timer"><span id="timer">0' 00"</span></div>
+		<hr />
+		<div class="counter"><span id="counter">0</span></div>
+		<div class="controls">
+			<button id="minus">-</button>
+			<button id="plus">+</button>
+		</div>
+		<button id="reset">reset</button>
+	</div>
+
+	<script>
+		let timerValue = 0;
+		let counterValue = 0;
+		let timerInterval;
+
+		const timerElement = document.getElementById('timer');
+		const counterElement = document.getElementById('counter');
+		const minutesInput = document.getElementById('minutes');
+		const startButton = document.getElementById('start');
+		const plusButton = document.getElementById('plus');
+		const minusButton = document.getElementById('minus');
+		const resetButton = document.getElementById('reset');
+
+		const updateTimer = () => {
+			if (timerValue > 0) {
+				timerValue--;
+				const minutes = Math.floor(timerValue / 60);
+				const seconds = timerValue % 60;
+				timerElement.textContent = `${minutes}' ${seconds < 10 ? '0' : ''}${seconds}"`;
+			} else {
+				clearInterval(timerInterval);
+			}
+		};
+
+		const updateCounter = (value) => {
+			const updatedValue = counterValue + value;
+			counterValue = updatedValue > 0 ? updatedValue : 0;
+			counterElement.textContent = counterValue;
+		};
+
+		const resetCounter = () => {
+			counterValue = 0;
+			counterElement.textContent = counterValue;
+		};
+
+		startButton.addEventListener('click', () => {
+			clearInterval(timerInterval);
+			const minutes = parseInt(minutesInput.value);
+			if (!isNaN(minutes) && minutes >= 0) {
+				timerValue = minutes * 60;
+				const initialMinutes = Math.floor(timerValue / 60);
+				const initialSeconds = timerValue % 60;
+				timerElement.textContent = `${initialMinutes}' ${initialSeconds < 10 ? '0' : ''}${initialSeconds}"`;
+				timerInterval = setInterval(updateTimer, 1000);
+			}
+		});
+
+		plusButton.addEventListener('click', () => updateCounter(1));
+		minusButton.addEventListener('click', () => updateCounter(-1));
+		resetButton.addEventListener('click', () => updateCounter(-Infinity));
+	</script>
+</body>
+</html>
