@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<title>Adicionar Evento</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			padding: 2rem;
+			text-align: center;
+		}
+		a.button {
+			display: inline-block;
+			margin-top: 1.5rem;
+			padding: 0.75rem 1.5rem;
+			background: #007bff;
+			color: #fff;
+			text-decoration: none;
+			border-radius: 4px;
+		}
+		#info {
+			font-weight: normal;
+		}
+	</style>
+	<!-- AddEvent script -->
+	<script type="text/javascript" src="https://cdn.addevent.com/libs/atc/1.6.1/atc.min.js" async defer></script>
+</head>
+<body>
+	<p>Adicionar Discurso Público ao Calendário</p>
+	<h1 id="info">Preparando evento…</h1>
+	<a id="downloadLink" class="button" style="display:none;">Adicionar ao Calendário</a>
+
+	<div title="Add to Calendar" class="addeventatc">
+		Adicionar ao Calendário
+		<span id="addevent-start" class="start">05/21/2025 08:00 AM</span>
+		<span id="addevent-end" class="end">05/21/2025 10:00 AM</span>
+		<span class="timezone">America/Sao_Paulo</span>
+		<span id="addevent-title" class="title">Summary of the event</span>
+		<span id="addevent-description" class="description">Description of the event</span>
+		<span id="addevent-location" class="location">Location of the event</span>
+		<span class="alarm_reminder">1440</span>
+		<span class="alarm_reminder">8640</span>
+	</div>
+
+	<script>
+		// 1) Read fragment (e.g. "#2025070764")
+		const frag = (location.hash || '').slice(1);
+		console.log('Fragment:', frag);
+		if (frag.length < 9) {
+			document.getElementById('info').textContent = 'URL inválida – use #YYYYMMDDNN.';
+			throw new Error('Invalid fragment');
+		}
+
+		// 2) Extract date (YYYYMMDD) and theme number
+		const date = frag.slice(0, 8);
+		const theme = frag.slice(8);
+
+		// Show a message confirming the date and theme
+		const info = document.getElementById('info');
+		info.textContent = `Tema nº ${theme}, data ${date.slice(6)}/${date.slice(4, 6)}/${date.slice(0, 4)}.`;
+
+		// 3) Build ICS text
+		const icsLines = [
+			'BEGIN:VCALENDAR',
+			'VERSION:2.0',
+			'BEGIN:VEVENT',
+			`SUMMARY:Discurso Público Tema nº ${theme} na Congregação Funcionários de Contagem`,
+			'DESCRIPTION:Se não for possível comparecer\\, por gentileza avise ao irmão Gerson: (31) 97104-7818.',
+			`DTSTART;TZID=America/Sao_Paulo:${date}T190000`,
+			`DTEND;TZID=America/Sao_Paulo:${date}T193000`,
+			'LOCATION:Rua Natal Veronez\\, 526\\nTres Barras\\, Contagem - MG\\, Brazil',
+			'BEGIN:VALARM',
+			'ACTION:DISPLAY',
+			'TRIGGER:-P1D',
+			'END:VALARM',
+			'BEGIN:VALARM',
+			'ACTION:DISPLAY',
+			'TRIGGER:-P6D',
+			'END:VALARM',
+			'END:VEVENT',
+			'END:VCALENDAR'
+		];
+		const icsContent = icsLines.join('\r\n');
+
+		// 4) Create a Blob and object URL
+		const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+
+		// 5) Set up download link
+		const link = document.getElementById('downloadLink');
+		link.href = url;
+		link.download = `Discurso_Publico_Tema_${theme}_${date}.ics`;
+		link.style.display = 'inline-block';
+		document.getElementById('info').textContent =
+			`Tema nº ${theme} em ${date.slice(6)}/${date.slice(4, 6)}/${date.slice(0, 4)}`;
+
+		// This simulates a click — download starts immediately
+		link.click();
+
+		// Clean up
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+
+		// 6) Add to addevent.com button
+		document.getElementById('addevent-start').innerHTML = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T19:00:00`;
+		document.getElementById('addevent-end').innerHTML = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T19:30:00`;
+		document.getElementById('addevent-title').innerHTML = `Discurso Público Tema nº ${theme} na Congregação Funcionários de Contagem`;
+		document.getElementById('addevent-description').innerHTML = `Se não for possível comparecer\\, por gentileza avise ao irmão Gerson: (31) 97104-7818.`;
+		document.getElementById('addevent-location').innerHTML = `Rua Natal Veronez\\, 526\\nTres Barras\\, Contagem - MG\\, Brazil`;
+	</script>
+</body>
+</html>
